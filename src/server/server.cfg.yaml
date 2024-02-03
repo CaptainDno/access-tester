@@ -1,0 +1,6 @@
+package: access_tester
+generate:
+  chi-server: true
+  strict-server: true
+  embedded-spec: true
+output: server.gen.go

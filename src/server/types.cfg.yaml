@@ -1,0 +1,4 @@
+package: access_tester
+generate:
+  models: true
+output: types.gen.go

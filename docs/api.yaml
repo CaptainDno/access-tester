@@ -1,0 +1,85 @@
+openapi: 3.0.3
+info:
+  title: Access Testing API
+  description: >
+    Simple API that allows you to test if resource with provided url returns 403 access code or page with phrases like 'access denied'
+    Useful for deploying in multiple locations (e.g. different countries) to check if resource is blocking HTTP requests from these countries
+  version: 1.0.0
+  contact:
+    name: CaptainDno
+  license:
+    name: MIT
+components:
+  schemas:
+    Result:
+      description: Result of checking domain
+      type: object
+      required:
+        - host
+        - canBeBlocked
+        - status
+        - triggerPhrasesFound
+      properties:
+        host:
+          description: Value of the HTTP Host header used to connect to resource
+          type: string
+          format: RFC9110 Host header value
+          example: example.com
+          externalDocs:
+            url: https://www.rfc-editor.org/rfc/rfc9110#name-host-and-authority
+            description: About HTTP Host header
+        canBeBlocked:
+          description: Can this resource be actually blocked based on status code and trigger phrases
+          type: boolean
+          example: true
+        status:
+          description: HTTP status code
+          type: integer
+          example: 403
+        triggerPhrasesFound:
+          description: Array of all found trigger phrases
+          type: array
+          items:
+            type: string
+            minLength: 1
+          minItems: 0
+          example:
+            - access denied
+
+
+paths:
+  /status:
+    get:
+      summary: Test URLs
+      operationId: checkStatus
+      description: >
+        One and only endpoint. Send GET request and get results.
+      parameters:
+        - in: query
+          name: host
+          required: true
+          schema:
+            externalDocs:
+              url: https://www.rfc-editor.org/rfc/rfc9110#name-host-and-authority
+              description: About HTTP Host header
+            type: string
+            description: host
+            format: RFC9110 Host header value
+          examples:
+            subdomain:
+              value: www.google.com:443
+              summary: Domain with subdomain and port
+            hostname:
+              value: example.com
+              summary: Just domain name of the resource
+      responses:
+        200:
+          description: Extracted hostnames with results of testing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+        400:
+          description: Request was malformed
+        500:
+          description: Internal server error
